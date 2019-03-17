@@ -1,4 +1,8 @@
 export default {
-  windowGap: 30,
-  chartHeight: 600
+  xAxisHeight: 30,
+  windowGap: 20,
+  chartHeight: 450,
+  colors: {
+    border: '#dfe6eb'
+  }
 };

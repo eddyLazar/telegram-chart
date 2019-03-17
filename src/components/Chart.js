@@ -1,29 +1,57 @@
 import React from 'react';
-import { Stage, Layer } from 'react-konva';
-import { findMaxY, findMinMaxX } from '../utils/points';
+import { Stage, Layer, Text, Line } from 'react-konva';
 import theme from '../theme';
-import flatten from 'ramda/src/flatten';
+import XAxis from './XAxis';
+import YAxis from './YAxis';
+import { dateFormatter } from '../utils/date';
+import prop from 'ramda/src/prop';
 
-export default ({ children = [] }) => {
+const style = {
+  position: 'relative'
+};
+
+export default ({ children = [], XAxisKey = '', data = [] }) => {
+  const xValues = data.map(prop(XAxisKey));
+  let yValus = [];
+
+  children.forEach(lineEl => {
+    yValus = [...yValus, ...data.map(prop(lineEl.props.dataKey))];
+  });
+
   const width = window.innerWidth - theme.windowGap * 2;
   const height = theme.chartHeight;
 
-  const allPoints = flatten(children.map(({ props: { points } }) => points));
-  console.log(allPoints);
+  const maxY = Math.max(...yValus);
 
-  const maxY = findMaxY(allPoints);
-  const [minX, maxX] = findMinMaxX(allPoints);
+  const minX = Math.min(...xValues);
+  const maxX = Math.max(...xValues);
 
   return (
-    <Stage
-      width={width}
-      height={height}
-      onMouseLeave={() => console.log('mouse out')}>
-      <Layer>
-        {children.map((el, key) =>
-          React.cloneElement(el, { width, height, key, maxY, minX, maxX })
-        )}
-      </Layer>
-    </Stage>
+    <div style={style}>
+      <XAxis min={minX} max={maxX} formatter={dateFormatter} />
+      <YAxis max={maxY} formatter={dateFormatter} />
+      <Stage width={width} height={height}>
+        <Layer>
+          {children.map((el, key) => {
+            const yAxisKey = el.props.dataKey;
+
+            const points = data.map(dataItem => [
+              prop(XAxisKey, dataItem),
+              prop(yAxisKey, dataItem)
+            ]);
+
+            return React.cloneElement(el, {
+              key,
+              points,
+              width: width,
+              height: height,
+              maxY,
+              minX,
+              maxX
+            });
+          })}
+        </Layer>
+      </Stage>
+    </div>
   );
 };
