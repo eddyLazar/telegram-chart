@@ -1,40 +1,28 @@
 import React from 'react';
-import { Stage, Layer, Line } from 'react-konva';
-import { countY, countX, findMaxY, findMinMaxX } from '../utils/points';
+import { Stage, Layer } from 'react-konva';
+import { findMaxY, findMinMaxX } from '../utils/points';
 import theme from '../theme';
+import flatten from 'ramda/src/flatten';
 
 export default ({ children = [] }) => {
   const width = window.innerWidth - theme.windowGap * 2;
   const height = theme.chartHeight;
-  const points = children.map(({ props }) => props);
 
-  const maxY = findMaxY(points);
-  const [minX, maxX] = findMinMaxX(points);
+  const allPoints = flatten(children.map(({ props: { points } }) => points));
+  console.log(allPoints);
 
-  const linePoints = [];
-  children.forEach(pointEl => {
-    const y = countY(pointEl.props.y, maxY, height);
-    const x = countX(pointEl.props.x, minX, maxX, width);
-    linePoints.push(x);
-    linePoints.push(y);
-  });
+  const maxY = findMaxY(allPoints);
+  const [minX, maxX] = findMinMaxX(allPoints);
 
   return (
     <Stage
       width={width}
       height={height}
-      onMouseMove={(...args) => {
-        console.log(args);
-      }}
       onMouseLeave={() => console.log('mouse out')}>
       <Layer>
-        <Line x={0} y={0} points={linePoints} stroke="black" />
-        {children.map(pointEl => {
-          const y = countY(pointEl.props.y, maxY, height);
-          const x = countX(pointEl.props.x, minX, maxX, width);
-
-          return React.cloneElement(pointEl, { x, y });
-        })}
+        {children.map((el, key) =>
+          React.cloneElement(el, { width, height, key, maxY, minX, maxX })
+        )}
       </Layer>
     </Stage>
   );
