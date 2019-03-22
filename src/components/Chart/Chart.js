@@ -61,10 +61,21 @@ export default ({ children = [], xAxisKey = '', data = [] }) => {
 
   return (
     <div>
-      <div style={style}>
+      <div
+        style={style}
+        onMouseMove={ev => {
+          if (ev.target.nodeName !== 'CANVAS') {
+            setClosestX(null);
+          }
+        }}>
         <XAxis min={minX} max={maxX} formatter={dateFormatter} />
         <YAxis max={maxY} formatter={dateFormatter} />
-        <Stage width={width} height={height} onMouseMove={handleMouseMove}>
+        <Stage
+          width={width}
+          height={height}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={() => 'leave'}
+          onMouseOut={() => 'out'}>
           <Layer>
             {lines.map(line => {
               return (
