@@ -8,6 +8,14 @@ export const countX = (x = 0, minX = 0, maxX = 0, width = 0) => {
   return (xDiff / diff) * width;
 };
 
+export const countXValue = (canvasX = 0, xValues = 0, width = 0) => {
+  const maxX = Math.max(...xValues);
+  const minX = Math.min(...xValues);
+  const diff = maxX - minX;
+
+  return (canvasX / width) * diff + minX;
+};
+
 const findMouseDiff = (mouseX, pointX) => {
   const diff = pointX - mouseX;
   return diff > 0 ? diff : diff * -1;

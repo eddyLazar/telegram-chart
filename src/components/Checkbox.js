@@ -1,6 +1,6 @@
 import React from 'react';
 import Checkbox from 'antd/lib/checkbox';
-import 'antd/lib/checkbox/style';
+import 'antd/lib/checkbox/style/css';
 
 const defaultProps = {
   color: '',

@@ -1,4 +1,4 @@
-import { findClosestX, countY, countX } from './points';
+import { findClosestX, countY, countX, countXValue } from './points';
 
 test('countY()', () => {
   expect(countY(90, 100, 100)).toBe(10);
@@ -23,4 +23,8 @@ test('findClosestX()', () => {
   expect(findClosestX({ x: 1040 }, xValues)).toBe(1079.830598200106);
   expect(findClosestX({ x: 1350 }, xValues)).toBe(1400);
   expect(findClosestX({ x: 1 }, xValues)).toBe(0);
+});
+
+test('countXValue()', () => {
+  expect(countXValue(40, [0, 56, 100], 200)).toBe(20);
 });

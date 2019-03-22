@@ -1,96 +1,60 @@
 import React, { useState } from 'react';
-import { Stage, Layer, Line } from 'react-konva';
 import theme from '../../theme';
-import XAxis from './../XAxis';
-import YAxis from './../YAxis';
-import { dateFormatter } from '../../utils/date';
 import prop from 'ramda/src/prop';
 import path from 'ramda/src/path';
-import {
-  findClosestX,
-  findMaxValues,
-  transformLineToCanvasPoints
-} from '../../utils/points';
-import flatten from 'ramda/src/flatten';
-import zip from 'ramda/src/zip';
-import ActivePoints from '../ActivePoints';
 import Checkbox from '../Checkbox';
 import { useToggleLines } from './Chart.hooks';
+import Graph from '../Graph';
+import ChartRegionSelect from '../ChartRegionSelect';
+import { countXValue } from '../../utils/points';
 
 const style = {
   position: 'relative'
 };
 
 export default ({ children = [], xAxisKey = '', data = [] }) => {
-  const allXValues = data.map(prop(xAxisKey));
-  let allYValus = [];
   const width = window.innerWidth - theme.windowGap * 2;
   const height = theme.chartHeight;
 
   const yDataKeys = children.map(getDataKeyFromProps);
-  const [closestX, setClosestX] = useState(null);
+
   const [activeLines, setActiveLines] = useToggleLines(yDataKeys);
+
+  const xValues = data.map(item => item[xAxisKey]);
+  const minX = Math.min(...xValues);
+  const maxX = Math.max(...xValues);
+
+  const [xSelectedRegion, setXSelectedRegion] = useState([minX, maxX]);
 
   let lines = children
     .filter(({ props: { dataKey } }) => activeLines[dataKey])
     .map(prop('props'));
 
-  lines.forEach(({ dataKey = '', color = '', name = '' }, index) => {
-    if (activeLines[dataKey]) {
-      const lineYValues = data.map(prop(dataKey));
-      allYValus = [...allYValus, ...lineYValues];
-      const points = zip(allXValues, lineYValues);
-      lines[index] = { ...lines[index], points };
-    }
+  const dataForBigChart = data.filter(item => {
+    console.log(item[xAxisKey]);
+    console.log(xSelectedRegion[0]);
+    console.log(xSelectedRegion[1]);
+
+    return (
+      item[xAxisKey] >= xSelectedRegion[0] &&
+      item[xAxisKey] <= xSelectedRegion[1]
+    );
   });
-
-  const [maxY, minX, maxX] = findMaxValues(allXValues, allYValus);
-
-  const mapper = transformLineToCanvasPoints(minX, maxX, maxY, width, height);
-
-  lines = lines.map(l => ({ ...l, points: mapper(l.points) }));
-
-  const handleMouseMove = ev => {
-    if (ev.target && ev.target.getPointerPosition) {
-      const pointerPosition = ev.target.getPointerPosition();
-      if (pointerPosition && lines.length) {
-        setClosestX(findClosestX(pointerPosition, lines[0].points));
-      }
-    }
-  };
+  console.log(dataForBigChart);
 
   return (
     <div>
-      <div
-        style={style}
-        onMouseMove={ev => {
-          if (ev.target.nodeName !== 'CANVAS') {
-            setClosestX(null);
-          }
-        }}>
-        <XAxis min={minX} max={maxX} formatter={dateFormatter} />
-        <YAxis max={maxY} formatter={dateFormatter} />
-        <Stage
+      <div style={style}>
+        <Graph
+          xAxis
+          yAxis
           width={width}
           height={height}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={() => 'leave'}
-          onMouseOut={() => 'out'}>
-          <Layer>
-            {lines.map(line => {
-              return (
-                <Line
-                  x={0}
-                  y={0}
-                  points={flatten(line.points)}
-                  stroke={line.color}
-                  key={line.dataKey}
-                />
-              );
-            })}
-            <ActivePoints lines={lines} height={height} closestX={closestX} />
-          </Layer>
-        </Stage>
+          lines={lines}
+          data={dataForBigChart}
+          xAxisKey={xAxisKey}
+          highlightCursor
+        />
       </div>
       <br />
       <br />
@@ -102,6 +66,7 @@ export default ({ children = [], xAxisKey = '', data = [] }) => {
         if (checked && lines.length === 1) {
           disabled = true;
         }
+
         return (
           <Checkbox
             disabled={disabled}
@@ -112,6 +77,23 @@ export default ({ children = [], xAxisKey = '', data = [] }) => {
           />
         );
       })}
+      <Graph
+        width={width}
+        height={theme.regionSelector.height}
+        lines={lines}
+        data={data}
+        xAxisKey={xAxisKey}>
+        <ChartRegionSelect
+          height={theme.regionSelector.height}
+          width={width}
+          onChange={([min, max]) => {
+            setXSelectedRegion([
+              countXValue(min, xValues, width),
+              countXValue(max, xValues, width)
+            ]);
+          }}
+        />
+      </Graph>
     </div>
   );
 };
