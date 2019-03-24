@@ -6,7 +6,10 @@ export default {
     border: '#dfe6eb'
   },
   regionSelector: {
-    height: 120,
-    minWidth: 100
+    height: 80,
+    minWidth: 200,
+    moveCornerWidth: 25,
+    fogColor: 'rgba(223, 230, 235, 0.3)',
+    sidesColor: 'rgba(223, 230, 235, 0.7)'
   }
 };

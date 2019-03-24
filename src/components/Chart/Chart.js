@@ -21,26 +21,22 @@ export default ({ children = [], xAxisKey = '', data = [] }) => {
   const [activeLines, setActiveLines] = useToggleLines(yDataKeys);
 
   const xValues = data.map(item => item[xAxisKey]);
-  const minX = Math.min(...xValues);
-  const maxX = Math.max(...xValues);
 
-  const [xSelectedRegion, setXSelectedRegion] = useState([minX, maxX]);
+  const [xSelectedRegion, setXSelectedRegion] = useState([
+    countXValue(width - theme.regionSelector.minWidth, xValues, width),
+    countXValue(width, xValues, width)
+  ]);
 
   let lines = children
     .filter(({ props: { dataKey } }) => activeLines[dataKey])
     .map(prop('props'));
 
   const dataForBigChart = data.filter(item => {
-    console.log(item[xAxisKey]);
-    console.log(xSelectedRegion[0]);
-    console.log(xSelectedRegion[1]);
-
     return (
       item[xAxisKey] >= xSelectedRegion[0] &&
       item[xAxisKey] <= xSelectedRegion[1]
     );
   });
-  console.log(dataForBigChart);
 
   return (
     <div>
@@ -77,6 +73,9 @@ export default ({ children = [], xAxisKey = '', data = [] }) => {
           />
         );
       })}
+      <br />
+      <br />
+      <br />
       <Graph
         width={width}
         height={theme.regionSelector.height}
@@ -87,6 +86,8 @@ export default ({ children = [], xAxisKey = '', data = [] }) => {
           height={theme.regionSelector.height}
           width={width}
           onChange={([min, max]) => {
+            console.log('from here pam pam');
+
             setXSelectedRegion([
               countXValue(min, xValues, width),
               countXValue(max, xValues, width)

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Stage, Layer, Line } from 'react-konva';
+import { Stage, Layer, Line, FastLayer } from 'react-konva';
 import flatten from 'ramda/src/flatten';
 import zip from 'ramda/src/zip';
 import {
