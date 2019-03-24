@@ -5,26 +5,30 @@ import Line from './components/Line';
 import parseChart from './utils/parse-chart';
 import telegramData from './chart_data.json';
 
-const chartData = parseChart(telegramData[0]);
+// const chartData = parseChart(telegramData[0]);
+// console.log(telegramData);
 
 export default () => {
-  return (
-    <div style={{ margin: theme.windowGap }}>
-      <h1>Telegram chart</h1>
-      <br />
-      <br />
-      <div>
-        <Chart data={chartData.data} xAxisKey="x">
-          {chartData.lines.map(line => (
-            <Line
-              dataKey={line.yDataKey}
-              color={line.color}
-              key={line.yDataKey}
-              name={line.name}
-            />
-          ))}
-        </Chart>
+  return telegramData.map((chartData, i) => {
+    const { data, lines } = parseChart(chartData);
+    return (
+      <div style={{ margin: theme.windowGap }} key={i}>
+        <h1>Followers</h1>
+        <br />
+        <br />
+        <div>
+          <Chart data={data} xAxisKey="x">
+            {lines.map(line => (
+              <Line
+                dataKey={line.yDataKey}
+                color={line.color}
+                key={line.yDataKey}
+                name={line.name}
+              />
+            ))}
+          </Chart>
+        </div>
       </div>
-    </div>
-  );
+    );
+  });
 };

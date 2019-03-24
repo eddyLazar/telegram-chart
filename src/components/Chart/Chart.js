@@ -86,8 +86,6 @@ export default ({ children = [], xAxisKey = '', data = [] }) => {
           height={theme.regionSelector.height}
           width={width}
           onChange={([min, max]) => {
-            console.log('from here pam pam');
-
             setXSelectedRegion([
               countXValue(min, xValues, width),
               countXValue(max, xValues, width)

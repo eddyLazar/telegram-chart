@@ -8,8 +8,8 @@ export default {
   regionSelector: {
     height: 80,
     minWidth: 200,
-    moveCornerWidth: 25,
-    fogColor: 'rgba(223, 230, 235, 0.3)',
-    sidesColor: 'rgba(223, 230, 235, 0.7)'
+    moveCornerWidth: 6,
+    fogColor: 'rgba(223, 230, 235, 0.5)',
+    sidesColor: 'rgba(223, 230, 235, 0.8)'
   }
 };

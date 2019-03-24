@@ -25,14 +25,20 @@ export default ({ width = 0, height = 0, onChange = () => ({}) }) => {
   };
 
   const handleDragEnd = () => {
-    console.log('hello world');
-
     const [left, right] = getSidesBounds();
     onChange([left, right]);
   };
 
   const leftSide = (
     <Rect
+      onMouseEnter={() => {
+        const stage = leftSideRef.current.getStage();
+        stage.container().style.cursor = 'move';
+      }}
+      onMouseLeave={() => {
+        const stage = leftSideRef.current.getStage();
+        stage.container().style.cursor = 'default';
+      }}
       ref={leftSideRef}
       draggable
       x={initialLeftSideX}
@@ -41,8 +47,9 @@ export default ({ width = 0, height = 0, onChange = () => ({}) }) => {
       height={height}
       fill={theme.regionSelector.sidesColor}
       dragBoundFunc={p => {
-        if (p.x >= width - theme.regionSelector.minWidth) {
-          return { x: leftSideX, y: 0 };
+        const [l, r] = getSidesBounds();
+        if (p.x >= r - theme.regionSelector.minWidth) {
+          return { x: r - theme.regionSelector.minWidth, y: 0 };
         }
 
         if (p.x <= 0) {
@@ -56,11 +63,8 @@ export default ({ width = 0, height = 0, onChange = () => ({}) }) => {
   );
 
   const initialRightSideX = width;
-  const [rightSideX, setRightSideX] = useState(initialRightSideX);
 
   const handleRightSideDrag = e => {
-    const newX = e.target.x();
-    setRightSideX(newX);
     const [l, r] = getSidesBounds();
     setRegionWidth(r - l);
     setFogPosition();
@@ -68,6 +72,14 @@ export default ({ width = 0, height = 0, onChange = () => ({}) }) => {
 
   const rightSide = (
     <Rect
+      onMouseEnter={() => {
+        const stage = leftSideRef.current.getStage();
+        stage.container().style.cursor = 'move';
+      }}
+      onMouseLeave={() => {
+        const stage = leftSideRef.current.getStage();
+        stage.container().style.cursor = 'default';
+      }}
       ref={rightSideRef}
       draggable
       x={initialRightSideX - theme.regionSelector.moveCornerWidth}
@@ -76,8 +88,18 @@ export default ({ width = 0, height = 0, onChange = () => ({}) }) => {
       height={height}
       fill={theme.regionSelector.sidesColor}
       dragBoundFunc={p => {
-        if (p.x >= width - theme.regionSelector.moveCornerWidth) {
-          return { x: width - theme.regionSelector.moveCornerWidth, y: 0 };
+        const maxX = width - theme.regionSelector.moveCornerWidth;
+
+        if (p.x >= maxX) {
+          return { x: maxX, y: 0 };
+        }
+
+        const [l] = getSidesBounds();
+
+        const minX = l + theme.regionSelector.minWidth;
+
+        if (p.x <= minX) {
+          return { x: minX, y: 0 };
         }
 
         return { x: p.x, y: 0 };
@@ -120,7 +142,8 @@ export default ({ width = 0, height = 0, onChange = () => ({}) }) => {
       y={0}
       width={regionWidth}
       height={height}
-      strokeWidth={1}
+      strokeWidth={5}
+      stroke={theme.colors.border}
       draggable
       dragBoundFunc={p => {
         const maxX = width - regionWidth;
